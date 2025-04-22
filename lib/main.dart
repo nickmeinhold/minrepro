@@ -1,7 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:minrepro/firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final _ = await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MainApp());
 }
 
@@ -15,11 +22,24 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   String _outputString = '';
 
-  Future<void> _retrieveDocs() async {
+  Future<void> _setAndRetrieveDocs() async {
+    await FirebaseFirestore.instance.collection('collection').doc('a').set({
+      'text': 'a',
+    });
+    await FirebaseFirestore.instance.collection('collection').doc('b').set({
+      'text': 'b',
+    });
+    await FirebaseFirestore.instance.collection('collection').doc('c').set({
+      'text': 'c',
+    });
+    await FirebaseFirestore.instance.collection('collection').doc('d').set({
+      'text': 'd',
+    });
+
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await FirebaseFirestore.instance
             .collection('collection')
-            .where(FieldPath.documentId, whereIn: ['a', 'set', 'of', 'ids'])
+            .where(FieldPath.documentId, whereIn: ['a', 'b', 'c', 'd'])
             .get();
 
     for (final doc in querySnapshot.docs) {
@@ -32,7 +52,7 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
-    _retrieveDocs();
+    _setAndRetrieveDocs();
   }
 
   @override
